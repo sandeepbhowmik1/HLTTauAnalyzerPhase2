@@ -1,0 +1,24 @@
+#!/bin/sh
+cmsRun -p test_HLTTau_Background_part_1.py > out_HLTTau_Background_part_1.log &
+cmsRun -p test_HLTTau_Background_part_2.py > out_HLTTau_Background_part_2.log &
+cmsRun -p test_HLTTau_Background_part_3.py > out_HLTTau_Background_part_3.log &
+cmsRun -p test_HLTTau_Background_part_4.py > out_HLTTau_Background_part_4.log &
+cmsRun -p test_HLTTau_Background_part_5.py > out_HLTTau_Background_part_5.log &
+cmsRun -p test_HLTTau_Background_part_6.py > out_HLTTau_Background_part_6.log &
+cmsRun -p test_HLTTau_Background_part_7.py > out_HLTTau_Background_part_7.log &
+cmsRun -p test_HLTTau_Background_part_8.py > out_HLTTau_Background_part_8.log &
+cmsRun -p test_HLTTau_Background_part_9.py > out_HLTTau_Background_part_9.log &
+cmsRun -p test_HLTTau_Background_part_10.py > out_HLTTau_Background_part_10.log &
+cmsRun -p test_HLTTau_Background_part_11.py > out_HLTTau_Background_part_11.log &
+cmsRun -p test_HLTTau_Background_part_12.py > out_HLTTau_Background_part_12.log &
+cmsRun -p test_HLTTau_Background_part_13.py > out_HLTTau_Background_part_13.log &
+cmsRun -p test_HLTTau_Background_part_14.py > out_HLTTau_Background_part_14.log &
+cmsRun -p test_HLTTau_Background_part_15.py > out_HLTTau_Background_part_15.log &
+cmsRun -p test_HLTTau_Background_part_16.py > out_HLTTau_Background_part_16.log &
+cmsRun -p test_HLTTau_Background_part_17.py > out_HLTTau_Background_part_17.log &
+cmsRun -p test_HLTTau_Background_part_18.py > out_HLTTau_Background_part_18.log &
+cmsRun -p test_HLTTau_Background_part_19.py > out_HLTTau_Background_part_19.log &
+cmsRun -p test_HLTTau_Background_part_20.py > out_HLTTau_Background_part_20.log &
+cmsRun -p test_HLTTau_Background_part_21.py > out_HLTTau_Background_part_21.log &
+cmsRun -p test_HLTTau_Background_part_22.py > out_HLTTau_Background_part_22.log &
+cmsRun -p test_HLTTau_Background_part_23.py > out_HLTTau_Background_part_23.log &

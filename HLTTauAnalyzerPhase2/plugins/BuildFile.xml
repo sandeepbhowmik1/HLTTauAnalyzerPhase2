@@ -1,0 +1,11 @@
+<library file="*.cc" name="HLTTauAnalyzerPhase2HLTTauAnalyzerPhase2Plugins">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="HLTTauAnalyzerPhase2/HLTTauAnalyzerPhase2"/>
+  <use   name="root"/>
+  <use   name="hepmc"/>
+  <use   name="roottmva"/>
+  <use   name="boost"/>
+</library>
+
