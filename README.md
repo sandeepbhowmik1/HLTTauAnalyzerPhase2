@@ -31,7 +31,7 @@ cp /home/sbhowmik/L1TauTrigger/L1TauProducerPhase2/CMSSW_11_1_2/src/DataFormats/
 
 
 
-# To Analyze L1 HPS Tau
+# To Analyze HLT Tau
 
 
 git clone https://github.com/sandeepbhowmik1/HLTTauAnalyzerPhase2
