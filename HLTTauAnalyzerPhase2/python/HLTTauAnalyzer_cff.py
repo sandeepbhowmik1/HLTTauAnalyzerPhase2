@@ -28,7 +28,8 @@ genVertexProducer = cms.EDProducer("GenVertexProducer",
 
 HLTTauAnalyzer = cms.EDAnalyzer("HLTTauAnalyzer",
                                         debug              = cms.untracked.bool(False),
-                                        isReco             = cms.untracked.bool(True),
+                                        isGen              = cms.untracked.bool(True),
+                                        isReco             = cms.untracked.bool(False),
                                         min_pt             = cms.untracked.double(0),
                                         max_eta            = cms.untracked.double(3.0),
                                         genTagToken        = cms.InputTag("generator"),
@@ -42,12 +43,15 @@ HLTTauAnalyzer = cms.EDAnalyzer("HLTTauAnalyzer",
                                         #hltTauToken        = cms.InputTag("hltSelectedPFTausWithOfflineVertices"),
                                         #hltTauToken        = cms.InputTag("hltHpsPFTausPassingTrackPt8HitsMaxDeltaZWithOnlineVertices"),
                                         #hltTauToken        = cms.InputTag("hltSelectedHpsPFTaus8HitsMaxDeltaZWithOnlineVertices"),
-                                        hltTauToken        = cms.InputTag("hltSelectedHpsPFTaus8HitsMaxDeltaZWithOfflineVertices"),
+                                        #hltTauToken        = cms.InputTag("hltSelectedHpsPFTaus8HitsMaxDeltaZWithOfflineVertices"),
+                                        hltTauToken        = cms.InputTag("hltUpdatedPatHpsPFTaus8HitsMaxDeltaZWithOfflineVertices"),
                                         #hltTauSumChargedIsoToken = cms.InputTag("hltHpsPFTauChargedIsoPtSumWithOfflineVertices"),
                                         #hltTauSumChargedIsoToken = cms.InputTag("hltPFTauChargedIsoPtSumWithOfflineVertices"),
                                         #hltTauSumChargedIsoToken = cms.InputTag("hltHpsPFTauChargedIsoPtSum8HitsMaxDeltaZWithOnlineVertices"),
                                         #hltTauSumChargedIsoToken = cms.InputTag("hltHpsPFTauChargedIsoPtSum8HitsMaxDeltaZWithOfflineVertices"),
-                                        hltTauSumChargedIsoToken = cms.InputTag("hltSelectedHpsPFTauChargedIsoPtSum8HitsMaxDeltaZWithOfflineVertices"),
+                                        #hltTauSumChargedIsoToken = cms.InputTag("hltSelectedHpsPFTauChargedIsoPtSum8HitsMaxDeltaZWithOfflineVertices"),
+                                        hltTauSumChargedIsoToken = cms.string("byDeepTau2017v2VSjetraw"),
+                                        #hltTauSumChargedIsoToken = cms.string("chargedIsoPtSumHGCalFix"),
                                         treeName           = cms.string("HLTTauAnalyzer"),
                                         fillBDT            = cms.untracked.bool(True),
                                         bdtRootFileName    = cms.string("bdt_test_HLTTauAnalyzer.root"),
@@ -56,12 +60,13 @@ HLTTauAnalyzer = cms.EDAnalyzer("HLTTauAnalyzer",
                                         histRootFileName   = cms.string("hist_test_HLTTauAnalyzer.root"),
                                         applyBDT           = cms.untracked.bool(True),
                                         bdtInputFileName   = cms.string("HLTTauAnalyzerPhase2/HLTTauAnalyzerPhase2/data/L1HPSPFTau_XGB_testVars_default_6Var_20200304_4.xml"),  # _4
+                                        src_evtWeight      = cms.InputTag("stitchingWeight"),
                                         )
 
 
 AnalyzerSeq = cms.Sequence(
     #genVertexProducer +
-    genMatchedTaus +
-    goodTaus       +
+    #genMatchedTaus +
+    #goodTaus       +
     HLTTauAnalyzer
 )

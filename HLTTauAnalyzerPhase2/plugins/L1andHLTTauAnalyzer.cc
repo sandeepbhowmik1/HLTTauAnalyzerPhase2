@@ -24,11 +24,14 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"             // reco::PFTauRef, reco::PFTauCollection
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"   // reco::PFTauDiscriminator
 
+#include "DataFormats/Phase2L1Taus/interface/L1HPSPFTau.h"     // l1t::L1HPSPFTau
+#include "DataFormats/Phase2L1Taus/interface/L1HPSPFTauFwd.h"  // l1t::L1HPSPFTauCollection
+#include "DataFormats/L1TParticleFlow/interface/PFTau.h"       // l1t::PFTauCollection for NNTau
 
-class HLTTauAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class L1andHLTTauAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
-  explicit HLTTauAnalyzer(const edm::ParameterSet&);
-  ~HLTTauAnalyzer();
+  explicit L1andHLTTauAnalyzer(const edm::ParameterSet&);
+  ~L1andHLTTauAnalyzer();
   
 private:
   virtual void beginJob() override;
@@ -44,6 +47,7 @@ private:
   Int_t           lumi_;
   float MC_weight_;
   double stitching_weight_;
+  double genVertex_;
   std::vector<float> genTauPt_;
   std::vector<float> genTauEta_;
   std::vector<float> genTauPhi_;
@@ -77,7 +81,39 @@ private:
   std::vector<Bool_t> hltTauVLooseRelIso_;
   std::vector<float> hltTauZ_;
   std::vector<float> hltTauLeadTrackPt_;
-  double genVertex_;
+  std::vector<int> l1hpsTauType_;
+  std::vector<float> l1hpsTauPt_;
+  std::vector<float> l1hpsTauEta_;
+  std::vector<float> l1hpsTauPhi_;
+  std::vector<int> l1hpsTauCharge_;
+  std::vector<float> l1hpsTauIso_;
+  std::vector<Bool_t> l1hpsTauTightIso_;
+  std::vector<Bool_t> l1hpsTauMediumIso_;
+  std::vector<Bool_t> l1hpsTauLooseIso_;
+  std::vector<Bool_t> l1hpsTauVLooseIso_;
+  std::vector<Bool_t> l1hpsTauTightRelIso_;
+  std::vector<Bool_t> l1hpsTauMediumRelIso_;
+  std::vector<Bool_t> l1hpsTauLooseRelIso_;
+  std::vector<Bool_t> l1hpsTauVLooseRelIso_;
+  std::vector<float> l1hpsTauZ_;
+  std::vector<float> l1hpsTauLeadTrackPt_;
+  std::vector<int> l1nnTauType_;
+  std::vector<float> l1nnTauPt_;
+  std::vector<float> l1nnTauEta_;
+  std::vector<float> l1nnTauPhi_;
+  std::vector<int> l1nnTauCharge_;
+  std::vector<float> l1nnTauIso_;
+  std::vector<Bool_t> l1nnTauTightIso_;
+  std::vector<Bool_t> l1nnTauMediumIso_;
+  std::vector<Bool_t> l1nnTauLooseIso_;
+  std::vector<Bool_t> l1nnTauVLooseIso_;
+  std::vector<Bool_t> l1nnTauTightRelIso_;
+  std::vector<Bool_t> l1nnTauMediumRelIso_;
+  std::vector<Bool_t> l1nnTauLooseRelIso_;
+  std::vector<Bool_t> l1nnTauVLooseRelIso_;
+  std::vector<float> l1nnTauZ_;
+  std::vector<float> l1nnTauLeadTrackPt_;
+
 
   bool createHistRoorFile_;
   std::string histRootFileName_;
@@ -104,39 +140,45 @@ private:
   // ----------member data ---------------------------
 
   bool debug_;
-  bool isGen_;
-  bool isReco_;
+  bool isGenTau_;
+  bool isRecoTau_;
+  bool isHLTTau_;
+  bool isL1HPSTau_;
+  bool isL1NNTau_;
   double min_pt_;
   double max_eta_;
+  edm::EDGetTokenT<double>                         evtWeightToken_;
   edm::EDGetTokenT<GenEventInfoProduct>            genTagToken_;
   edm::EDGetTokenT<std::vector<reco::GenJet>>      genTauToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>>      recoVertexToken_;
   edm::EDGetTokenT<std::vector<pat::Tau>>          recoTauToken_;
   edm::EDGetTokenT<pat::TauRefVector>              recoGMTauToken_;
-  //edm::EDGetTokenT<std::vector<reco::PFTau>>       hltTauToken_;
-  edm::EDGetTokenT<pat::TauCollection>       hltTauToken_;
-  //edm::EDGetTokenT<reco::PFTauDiscriminator>       hltTauSumChargedIsoToken_;
-  std::string hltTauSumChargedIsoToken_;
-  edm::EDGetTokenT<double> evtWeightToken_;
+  edm::EDGetTokenT<pat::TauCollection>             hltTauToken_;
+  std::string                                      hltTauSumChargedIsoToken_;
+  edm::EDGetTokenT<l1t::L1HPSPFTauCollection>      l1hpsTauToken_;
+  edm::EDGetTokenT<l1t::PFTauCollection>           l1nnTauToken_;
 };
 
 
-HLTTauAnalyzer::HLTTauAnalyzer(const edm::ParameterSet& iConfig)
+L1andHLTTauAnalyzer::L1andHLTTauAnalyzer(const edm::ParameterSet& iConfig)
   : debug_          (iConfig.getUntrackedParameter<bool>("debug", false))
-  , isGen_         (iConfig.getUntrackedParameter<bool>("isGen", false))
-  , isReco_         (iConfig.getUntrackedParameter<bool>("isReco", false))
+  , isGenTau_       (iConfig.getUntrackedParameter<bool>("isGenTau", false))
+  , isRecoTau_      (iConfig.getUntrackedParameter<bool>("isRecoTau", false))
+  , isHLTTau_       (iConfig.getUntrackedParameter<bool>("isHLTTau", false))
+  , isL1HPSTau_     (iConfig.getUntrackedParameter<bool>("isL1HPSTau", false))
+  , isL1NNTau_      (iConfig.getUntrackedParameter<bool>("isL1NNTau", false))
   , min_pt_         (iConfig.getUntrackedParameter<double>("min_pt", 0))
   , max_eta_        (iConfig.getUntrackedParameter<double>("max_eta", 3.0))
+  , evtWeightToken_ (consumes<double>                       (iConfig.getParameter<edm::InputTag>("src_evtWeight")))
   , genTagToken_    (consumes<GenEventInfoProduct>          (iConfig.getParameter<edm::InputTag>("genTagToken")))
   , genTauToken_    (consumes<std::vector<reco::GenJet>>    (iConfig.getParameter<edm::InputTag>("genTauToken")))
   , recoVertexToken_(consumes<std::vector<reco::Vertex>>    (iConfig.getParameter<edm::InputTag>("recoVertexToken")))
   , recoTauToken_   (consumes<std::vector<pat::Tau>>        (iConfig.getParameter<edm::InputTag>("recoTauToken")))
   , recoGMTauToken_ (consumes<pat::TauRefVector>            (iConfig.getParameter<edm::InputTag>("recoGMTauToken")))
-  //, hltTauToken_    (consumes<std::vector<reco::PFTau>>     (iConfig.getParameter<edm::InputTag>("hltTauToken")))
   , hltTauToken_    (consumes<pat::TauCollection>           (iConfig.getParameter<edm::InputTag>("hltTauToken")))
-  //, hltTauSumChargedIsoToken_ (consumes<reco::PFTauDiscriminator> (iConfig.getParameter<edm::InputTag>("hltTauSumChargedIsoToken")))
   , hltTauSumChargedIsoToken_ (iConfig.getParameter<std::string>("hltTauSumChargedIsoToken"))
-  , evtWeightToken_ (consumes<double>                      (iConfig.getParameter<edm::InputTag>("src_evtWeight")))
+  , l1hpsTauToken_  (consumes<l1t::L1HPSPFTauCollection>    (iConfig.getParameter<edm::InputTag>("l1hpsTauToken")))
+  , l1nnTauToken_   (consumes<l1t::PFTauCollection>         (iConfig.getParameter<edm::InputTag>("l1nnTauToken")))
 {
    //now do what ever initialization is needed
   treeName_             = iConfig.getParameter<std::string>("treeName");
@@ -149,7 +191,7 @@ HLTTauAnalyzer::HLTTauAnalyzer(const edm::ParameterSet& iConfig)
 }
 
 
-HLTTauAnalyzer::~HLTTauAnalyzer()
+L1andHLTTauAnalyzer::~L1andHLTTauAnalyzer()
 {
 
    // do anything here that needs to be done at desctruction time
@@ -164,12 +206,12 @@ HLTTauAnalyzer::~HLTTauAnalyzer()
 
 // ------------ method called for each event  ------------
 void
-HLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1andHLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   Initialize();
 
   if(debug_){
-    std::cout<<" Starting HLTTau Analyzer ............     "<< std::endl;  
+    std::cout<<" Starting L1 nad HLTTau Analyzer ............     "<< std::endl;  
   }
     using namespace edm;
 
@@ -182,7 +224,7 @@ HLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    stitching_weight_ = *evtWeight;
    //cout<<"evtWeight "<<*evtWeight<<endl;
 
-   if(isGen_){
+   if(isGenTau_){
      edm::Handle<GenEventInfoProduct>        genEvt;
      try {iEvent.getByToken(genTagToken_,    genEvt);}
      catch (...) {;}
@@ -211,87 +253,155 @@ HLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-   //edm::Handle<std::vector<reco::PFTau>>      hltTauHandle;
-   edm::Handle<pat::TauCollection>      hltTauHandle;
-   iEvent.getByToken(hltTauToken_,            hltTauHandle);
-
-   //edm::Handle<reco::PFTauDiscriminator>        hltTauSumChargedIso;
-   //edm::Handle<pat::TauDiscriminator>        hltTauSumChargedIso;
-   //iEvent.getByToken(hltTauSumChargedIsoToken_, hltTauSumChargedIso);
-
-   size_t numHLTTaus = hltTauHandle->size();
-   for (size_t idxHLTTau=0; idxHLTTau<numHLTTaus; ++idxHLTTau){
-     //reco::PFTauRef hltTau(hltTauHandle, idxHLTTau);
-     pat::TauRef hltTau(hltTauHandle, idxHLTTau);
-     hltTauPt_.push_back(hltTau->pt());
-     hltTauEta_.push_back(hltTau->eta());
-     hltTauPhi_.push_back(hltTau->phi());
-     hltTauCharge_.push_back(hltTau->charge());
-     //double sumChargedIso = (*hltTauSumChargedIso)[hltTau];
-     double sumChargedIso = hltTau->tauID(hltTauSumChargedIsoToken_);
-     hltTauIso_.push_back(sumChargedIso);
-     /*
-     hltTauType_.push_back(hltTau->tauType());
-     hltTauTightIso_.push_back(hltTau->passTightIso());
-     hltTauMediumIso_.push_back(hltTau->passMediumIso());
-     hltTauLooseIso_.push_back(hltTau->passLooseIso());
-     hltTauVLooseIso_.push_back(hltTau->passVLooseIso());
-     */
-     if(hltTau->pt()!=0)
-       {
-         if(sumChargedIso/hltTau->pt() < 0.40)
-           {
-             hltTauVLooseRelIso_.push_back(true);
-           }
-         else
-           {
-             hltTauVLooseRelIso_.push_back(false);
-           }
-         if(sumChargedIso/hltTau->pt() < 0.20)
-           {
-             hltTauLooseRelIso_.push_back(true);
-           }
-         else
-           {
-             hltTauLooseRelIso_.push_back(false);
-           }
-         if(sumChargedIso/hltTau->pt() < 0.10)
-           {
-             hltTauMediumRelIso_.push_back(true);
-           }
-         else
-           {
-             hltTauMediumRelIso_.push_back(false);
-           }
-         if(sumChargedIso/hltTau->pt() < 0.05)
-           {
-             hltTauTightRelIso_.push_back(true);
-           }
-         else
-           {
-             hltTauTightRelIso_.push_back(false);
-           }
+   if(isL1HPSTau_){
+     edm::Handle<l1t::L1HPSPFTauCollection>  l1hpsTauHandle;
+     iEvent.getByToken(l1hpsTauToken_,        l1hpsTauHandle);
+     for(auto l1hpsTau : *l1hpsTauHandle){
+       l1hpsTauPt_.push_back(l1hpsTau.pt());
+       l1hpsTauEta_.push_back(l1hpsTau.eta());
+       l1hpsTauPhi_.push_back(l1hpsTau.phi());
+       l1hpsTauCharge_.push_back(l1hpsTau.charge());
+       l1hpsTauType_.push_back(l1hpsTau.tauType());
+       l1hpsTauIso_.push_back(l1hpsTau.sumChargedIso());
+       l1hpsTauTightIso_.push_back(l1hpsTau.passTightIso());
+       l1hpsTauMediumIso_.push_back(l1hpsTau.passMediumIso());
+       l1hpsTauLooseIso_.push_back(l1hpsTau.passLooseIso());
+       l1hpsTauVLooseIso_.push_back(l1hpsTau.passVLooseIso());
+       if(l1hpsTau.pt()!=0){
+	 if(l1hpsTau.sumChargedIso()/l1hpsTau.pt() < 0.40){
+	   l1hpsTauVLooseRelIso_.push_back(true);
+	 }else{
+	   l1hpsTauVLooseRelIso_.push_back(false);
+	 }
+	 if(l1hpsTau.sumChargedIso()/l1hpsTau.pt() < 0.20){
+	   l1hpsTauLooseRelIso_.push_back(true);
+	 }else{
+	   l1hpsTauLooseRelIso_.push_back(false);
+	 }
+	 if(l1hpsTau.sumChargedIso()/l1hpsTau.pt() < 0.10){
+	   l1hpsTauMediumRelIso_.push_back(true);
+	 }else{
+	   l1hpsTauMediumRelIso_.push_back(false);
+	 }
+	 if(l1hpsTau.sumChargedIso()/l1hpsTau.pt() < 0.05){
+	   l1hpsTauTightRelIso_.push_back(true);
+	 }else{
+	   l1hpsTauTightRelIso_.push_back(false);
+	 }
        }
-     double hltTauZ = 1000;
-     double hltTauLeadTrackPt = 0;
-     if (hltTau->leadChargedHadrCand().isNonnull() && hltTau->leadChargedHadrCand()->bestTrack()){
-       hltTauZ = hltTau->leadChargedHadrCand()->bestTrack()->vertex().z();
-       hltTauLeadTrackPt = hltTau->leadChargedHadrCand()->bestTrack()->pt();
+       
+       double l1hpsTauZ = 1000;
+       if ( l1hpsTau.leadChargedPFCand().isNonnull() && l1hpsTau.leadChargedPFCand()->pfTrack().isNonnull()){
+	 l1hpsTauZ = l1hpsTau.leadChargedPFCand()->pfTrack()->vertex().z();
+       }
+       l1hpsTauZ_.push_back(l1hpsTauZ);
+       if(debug_){
+	 std::cout<<" L1 HPS Tau pt "<<l1hpsTau.pt()<<" eta "<< l1hpsTau.eta()<<" phi "<< l1hpsTau.phi()<<" charge "<< l1hpsTau.charge()<<" Type "<< l1hpsTau.tauType()<<" sumChargedIso "<< l1hpsTau.sumChargedIso()<<std::endl;
+	 std::cout<<" L1 HPS Tau Z " << l1hpsTauZ  << std::endl;
+       }
      }
-     hltTauZ_.push_back(hltTauZ);
-     hltTauLeadTrackPt_.push_back(hltTauLeadTrackPt);
+   }//if(isL1HPSTau_){
 
-     hist_hltTauPt_->Fill(hltTau->pt());
-     hist_hltTauEta_->Fill(hltTau->eta());
-     hist_hltTauPhi_->Fill(hltTau->phi());
-     if(debug_){
-       std::cout<<" hltTau pt "<<hltTau->pt()<<" eta "<< hltTau->eta()<<" phi "<< hltTau->phi()<<" charge "<< hltTau->charge()<<std::endl;
-       std::cout<<" hltTau Z "<< hltTauZ <<std::endl;
+   if(isL1NNTau_){
+     edm::Handle<l1t::PFTauCollection>       l1nnTauHandle;
+     iEvent.getByToken(l1nnTauToken_,        l1nnTauHandle);
+     for(auto l1nnTau : *l1nnTauHandle){
+       l1nnTauPt_.push_back(l1nnTau.pt());
+       l1nnTauEta_.push_back(l1nnTau.eta());
+       l1nnTauPhi_.push_back(l1nnTau.phi());
+       l1nnTauCharge_.push_back(l1nnTau.charge());
+       l1nnTauType_.push_back(1);
+       l1nnTauIso_.push_back(l1nnTau.chargedIso());
+       l1nnTauTightIso_.push_back(l1nnTau.passTightNN());
+       l1nnTauMediumIso_.push_back(l1nnTau.passTightPF());
+       l1nnTauLooseIso_.push_back(l1nnTau.passLooseNN());
+       l1nnTauVLooseIso_.push_back(l1nnTau.passLoosePF());
+       if(l1nnTau.pt()!=0){
+	 if(l1nnTau.chargedIso()/l1nnTau.pt() < 0.40){
+	   l1nnTauVLooseRelIso_.push_back(true);
+	 }else{
+	   l1nnTauVLooseRelIso_.push_back(false);
+	 }
+	 if(l1nnTau.chargedIso()/l1nnTau.pt() < 0.20){
+	   l1nnTauLooseRelIso_.push_back(true);
+	 }else{
+	   l1nnTauLooseRelIso_.push_back(false);
+	 }
+	 if(l1nnTau.chargedIso()/l1nnTau.pt() < 0.10){
+	   l1nnTauMediumRelIso_.push_back(true);
+	 }else{
+	   l1nnTauMediumRelIso_.push_back(false);
+	 }
+	 if(l1nnTau.chargedIso()/l1nnTau.pt() < 0.05){
+	   l1nnTauTightRelIso_.push_back(true);
+	 }else{
+	   l1nnTauTightRelIso_.push_back(false);
+	 }
+       }
+       double l1nnTauZ = 1000;
+       l1nnTauZ_.push_back(l1nnTauZ);
+       if(debug_){
+	 std::cout<<" L1NNTau pt "<<l1nnTau.pt()<<" eta "<< l1nnTau.eta()<<" phi "<< l1nnTau.phi()<<" charge "<< l1nnTau.charge()<<" Type "<< 1 <<" chargedIso "<< l1nnTau.chargedIso()<<std::endl;
+       }
      }
-   }
-
-   if(isReco_){
-
+   }//if(isL1NNTau_){
+   
+   
+   if(isHLTTau_){
+     edm::Handle<pat::TauCollection>            hltTauHandle;
+     iEvent.getByToken(hltTauToken_,            hltTauHandle);
+     
+     size_t numHLTTaus = hltTauHandle->size();
+     for (size_t idxHLTTau=0; idxHLTTau<numHLTTaus; ++idxHLTTau){
+       pat::TauRef hltTau(hltTauHandle, idxHLTTau);
+       hltTauPt_.push_back(hltTau->pt());
+       hltTauEta_.push_back(hltTau->eta());
+       hltTauPhi_.push_back(hltTau->phi());
+       hltTauCharge_.push_back(hltTau->charge());
+       double sumChargedIso = hltTau->tauID(hltTauSumChargedIsoToken_);
+       hltTauIso_.push_back(sumChargedIso);
+       if(hltTau->pt()!=0){
+	 if(sumChargedIso > 0.60){
+	   hltTauVLooseRelIso_.push_back(true);
+	 }else{
+	   hltTauVLooseRelIso_.push_back(false);
+	 }
+	 if(sumChargedIso > 0.70){
+	   hltTauLooseRelIso_.push_back(true);
+	 }else{
+	   hltTauLooseRelIso_.push_back(false);
+	 }
+	 if(sumChargedIso > 0.80){
+	   hltTauMediumRelIso_.push_back(true);
+	 }else{
+	   hltTauMediumRelIso_.push_back(false);
+	 }
+	 if(sumChargedIso > 0.90){
+	   hltTauTightRelIso_.push_back(true);
+	 }else{
+	   hltTauTightRelIso_.push_back(false);
+	 }
+       }
+       double hltTauZ = 1000;
+       double hltTauLeadTrackPt = 0;
+       if (hltTau->leadChargedHadrCand().isNonnull() && hltTau->leadChargedHadrCand()->bestTrack()){
+	 hltTauZ = hltTau->leadChargedHadrCand()->bestTrack()->vertex().z();
+	 hltTauLeadTrackPt = hltTau->leadChargedHadrCand()->bestTrack()->pt();
+       }
+       hltTauZ_.push_back(hltTauZ);
+       hltTauLeadTrackPt_.push_back(hltTauLeadTrackPt);
+       
+       hist_hltTauPt_->Fill(hltTau->pt());
+       hist_hltTauEta_->Fill(hltTau->eta());
+       hist_hltTauPhi_->Fill(hltTau->phi());
+       if(debug_){
+	 std::cout<<" hltTau pt "<<hltTau->pt()<<" eta "<< hltTau->eta()<<" phi "<< hltTau->phi()<<" charge "<< hltTau->charge()<<std::endl;
+	 std::cout<<" hltTau Z "<< hltTauZ <<std::endl;
+       }
+     }
+   }//if(isHLTTau_){
+   
+   if(isRecoTau_){
      edm::Handle<std::vector<pat::Tau>>      recoTauHandle;
      iEvent.getByToken(recoTauToken_,        recoTauHandle);
 
@@ -315,7 +425,7 @@ HLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 std::cout<<" RecoTau pt "<<recoTau.pt()<<" eta "<< recoTau.eta()<<" phi "<< recoTau.phi()<<" charge "<< recoTau.charge()<<" DecayMode "<< recoTau.decayMode()<<std::endl;
        }
      } //for(auto recoTau : *recoTauHandle){
-
+     
      for(auto recoGMTau : *recoGMTauHandle){
        if (fabs(recoGMTau->eta())>max_eta_)
 	 continue;
@@ -324,17 +434,17 @@ HLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        recoGMTauPhi_.push_back(recoGMTau->phi());
        recoGMTauCharge_.push_back(recoGMTau->charge());
        recoGMTauDecayMode_.push_back(recoGMTau->decayMode());
-
+       
        hist_recoGMTauPt_->Fill(recoGMTau->pt());
        hist_recoGMTauEta_->Fill(recoGMTau->eta());
        hist_recoGMTauPhi_->Fill(recoGMTau->phi());
-
+       
        if(debug_){
 	 std::cout<<" RecoGMTau pt "<<recoGMTau->pt()<<" eta "<< recoGMTau->eta()<<" phi "<< recoGMTau->phi()<<" charge "<< recoGMTau->charge()<<" DecayMode "<< recoGMTau->decayMode()<<std::endl;
        }
      } //for(auto recoGMTau : *recoGMTauHandle){
-   } //if(isReco_){
-
+   } //if(isRecoTau_){
+   
 
 
 
@@ -344,12 +454,13 @@ HLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    tree_ -> Fill();
 }
 
-void HLTTauAnalyzer::Initialize() {
+void L1andHLTTauAnalyzer::Initialize() {
   indexevents_ = 0;
   runNumber_ = 0;
   lumi_ = 0;
   MC_weight_ = 1;
   stitching_weight_ = 1;
+  genVertex_ = 0;
   genTauPt_ .clear();
   genTauEta_ .clear();
   genTauPhi_ .clear();
@@ -384,13 +495,49 @@ void HLTTauAnalyzer::Initialize() {
   hltTauZ_ .clear();
   hltTauLeadTrackPt_.clear();
   hltTauType_ .clear();
-  genVertex_ = 0;
+
+  l1hpsTauPt_ .clear();
+  l1hpsTauEta_ .clear();
+  l1hpsTauPhi_ .clear();
+  l1hpsTauCharge_ .clear();
+  l1hpsTauType_ .clear();
+  l1hpsTauIso_ .clear();
+  l1hpsTauTightIso_ .clear();
+  l1hpsTauMediumIso_ .clear();
+  l1hpsTauLooseIso_ .clear();
+  l1hpsTauVLooseIso_ .clear();
+  l1hpsTauTightRelIso_ .clear();
+  l1hpsTauMediumRelIso_ .clear();
+  l1hpsTauLooseRelIso_ .clear();
+  l1hpsTauVLooseRelIso_ .clear();
+  l1hpsTauZ_ .clear();
+  l1hpsTauLeadTrackPt_.clear();
+  l1hpsTauType_ .clear();
+  l1nnTauPt_ .clear();
+  l1nnTauEta_ .clear();
+  l1nnTauPhi_ .clear();
+  l1nnTauCharge_ .clear();
+  l1nnTauType_ .clear();
+  l1nnTauIso_ .clear();
+  l1nnTauTightIso_ .clear();
+  l1nnTauMediumIso_ .clear();
+  l1nnTauLooseIso_ .clear();
+  l1nnTauVLooseIso_ .clear();
+  l1nnTauTightRelIso_ .clear();
+  l1nnTauMediumRelIso_ .clear();
+  l1nnTauLooseRelIso_ .clear();
+  l1nnTauVLooseRelIso_ .clear();
+  l1nnTauZ_ .clear();
+  l1nnTauLeadTrackPt_.clear();
+  l1nnTauType_ .clear();
+
+
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-HLTTauAnalyzer::beginJob()
+L1andHLTTauAnalyzer::beginJob()
 {
   tree_ -> Branch("EventNumber",&indexevents_,"EventNumber/l");
   tree_ -> Branch("RunNumber",&runNumber_,"RunNumber/I");
@@ -430,7 +577,42 @@ HLTTauAnalyzer::beginJob()
   tree_ -> Branch("hltTauVLooseRelIso", &hltTauVLooseRelIso_);
   tree_ -> Branch("hltTauZ", &hltTauZ_);
   tree_ -> Branch("hltTauLeadTrackPt",  &hltTauLeadTrackPt_);
-  tree_ -> Branch("hltTauType", &hltTauType_);
+
+  tree_ -> Branch("l1hpsTauType", &l1hpsTauType_);
+  tree_ -> Branch("l1hpsTauPt",  &l1hpsTauPt_);
+  tree_ -> Branch("l1hpsTauEta", &l1hpsTauEta_);
+  tree_ -> Branch("l1hpsTauPhi", &l1hpsTauPhi_);
+  tree_ -> Branch("l1hpsTauCharge", &l1hpsTauCharge_);
+  tree_ -> Branch("l1hpsTauType", &l1hpsTauType_);
+  tree_ -> Branch("l1hpsTauIso", &l1hpsTauIso_);
+  tree_ -> Branch("l1hpsTauTightIso", &l1hpsTauTightIso_);
+  tree_ -> Branch("l1hpsTauMediumIso", &l1hpsTauMediumIso_);
+  tree_ -> Branch("l1hpsTauLooseIso", &l1hpsTauLooseIso_);
+  tree_ -> Branch("l1hpsTauVLooseIso", &l1hpsTauVLooseIso_);
+  tree_ -> Branch("l1hpsTauTightRelIso", &l1hpsTauTightRelIso_);
+  tree_ -> Branch("l1hpsTauMediumRelIso", &l1hpsTauMediumRelIso_);
+  tree_ -> Branch("l1hpsTauLooseRelIso", &l1hpsTauLooseRelIso_);
+  tree_ -> Branch("l1hpsTauVLooseRelIso", &l1hpsTauVLooseRelIso_);
+  tree_ -> Branch("l1hpsTauZ", &l1hpsTauZ_);
+  tree_ -> Branch("l1hpsTauLeadTrackPt",  &l1hpsTauLeadTrackPt_);
+  tree_ -> Branch("l1hpsTauType", &l1hpsTauType_);
+  tree_ -> Branch("l1nnTauPt",  &l1nnTauPt_);
+  tree_ -> Branch("l1nnTauEta", &l1nnTauEta_);
+  tree_ -> Branch("l1nnTauPhi", &l1nnTauPhi_);
+  tree_ -> Branch("l1nnTauCharge", &l1nnTauCharge_);
+  tree_ -> Branch("l1nnTauType", &l1nnTauType_);
+  tree_ -> Branch("l1nnTauIso", &l1nnTauIso_);
+  tree_ -> Branch("l1nnTauTightIso", &l1nnTauTightIso_);
+  tree_ -> Branch("l1nnTauMediumIso", &l1nnTauMediumIso_);
+  tree_ -> Branch("l1nnTauLooseIso", &l1nnTauLooseIso_);
+  tree_ -> Branch("l1nnTauVLooseIso", &l1nnTauVLooseIso_);
+  tree_ -> Branch("l1nnTauTightRelIso", &l1nnTauTightRelIso_);
+  tree_ -> Branch("l1nnTauMediumRelIso", &l1nnTauMediumRelIso_);
+  tree_ -> Branch("l1nnTauLooseRelIso", &l1nnTauLooseRelIso_);
+  tree_ -> Branch("l1nnTauVLooseRelIso", &l1nnTauVLooseRelIso_);
+  tree_ -> Branch("l1nnTauZ", &l1nnTauZ_);
+  tree_ -> Branch("l1nnTauLeadTrackPt",  &l1nnTauLeadTrackPt_);
+  tree_ -> Branch("l1nnTauType", &l1nnTauType_);
 
   hist_genTauPt_ = new TH1F("genTauPt","genTauPt", 100, 0., 1000.);
   hist_genTauEta_ = new TH1F("genTauEta","genTauEta",50, -3., 3.);
@@ -457,11 +639,11 @@ HLTTauAnalyzer::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-HLTTauAnalyzer::endJob()
+L1andHLTTauAnalyzer::endJob()
 {
   if(createHistRoorFile_){
     histRootFile_->cd();
-
+    
     hist_genTauPt_->Write();
     hist_genTauEta_->Write();
     hist_genTauPhi_->Write();
@@ -480,14 +662,14 @@ HLTTauAnalyzer::endJob()
     hist_hltTauReso_vs_Gen_->Write();
     hist_hltTauReso_vs_Reco_->Write();
     hist_hltTauReso_vs_RecoGM_->Write();
-
+    
   //  histRootFile_->Write();
     histRootFile_->Close();
   }
-
+  
 
   return;
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HLTTauAnalyzer);
+DEFINE_FWK_MODULE(L1andHLTTauAnalyzer);

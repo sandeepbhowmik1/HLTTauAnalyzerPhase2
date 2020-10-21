@@ -53,6 +53,21 @@ do
 	    echo "import FWCore.ParameterSet.Config as cms" | cat >>$fileOut
 	    
 	    echo "process = cms.Process('Analyze')" | cat >>$fileOut
+
+	    echo "process.load('Configuration.StandardSequences.Services_cff')" | cat >>$fileOut
+	    echo "process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')" | cat >>$fileOut
+	    echo "process.load('FWCore.MessageService.MessageLogger_cfi')" | cat >>$fileOut
+	    echo "process.load('Configuration.EventContent.EventContent_cff')" | cat >>$fileOut
+	    echo "process.load('SimGeneral.MixingModule.mixNoPU_cfi')" | cat >>$fileOut
+	    echo "process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')" | cat >>$fileOut
+	    echo "process.load('Configuration.StandardSequences.MagneticField_cff')" | cat >>$fileOut
+	    echo "process.load('Configuration.StandardSequences.RawToDigi_cff')" | cat >>$fileOut
+	    echo "process.load('Configuration.StandardSequences.Reconstruction_cff')" | cat >>$fileOut
+	    echo "process.load('Configuration.StandardSequences.EndOfProcess_cff')" | cat >>$fileOut
+	    echo "process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')" | cat >>$fileOut
+	    echo "from Configuration.AlCa.GlobalTag import GlobalTag" | cat >>$fileOut
+	    echo "process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')" | cat >>$fileOut
+
 	    
 	    echo "process.maxEvents = cms.untracked.PSet(" | cat >>$fileOut
 	    printf "\t" test  | cat >>$fileOut
@@ -95,11 +110,28 @@ do
 	    
 	    echo "process.analysisSequence = cms.Sequence()" | cat >>$fileOut 
 	    echo "process.load(\"PhysicsTools.JetMCAlgos.TauGenJets_cfi\")" | cat >>$fileOut 
-	    echo "process.tauGenJets.GenParticles = cms.InputTag('prunedGenParticles')" | cat >>$fileOut 
-	    echo "process.analysisSequence += process.tauGenJets" | cat >>$fileOut 
+	    echo "#process.tauGenJets.GenParticles = cms.InputTag('prunedGenParticles')" | cat >>$fileOut 
+	    echo "#process.analysisSequence += process.tauGenJets" | cat >>$fileOut 
 	    
 	    echo "process.load(\"PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi\")" | cat >>$fileOut 
-	    echo "process.analysisSequence += process.tauGenJetsSelectorAllHadrons" | cat >>$fileOut 
+	    echo "#process.analysisSequence += process.tauGenJetsSelectorAllHadrons" | cat >>$fileOut 
+
+	    echo "hlt_pfTauLabel = 'HpsPFTau'" | cat >>$fileOut
+	    echo "hlt_srcVertices = 'offlinePrimaryVertices'" | cat >>$fileOut
+	    echo "hlt_isolation_maxDeltaZOption = 'primaryVertex'" | cat >>$fileOut
+	    echo "hlt_isolation_minTrackHits = 8" | cat >>$fileOut
+	    echo "suffix = '8HitsMaxDeltaZWithOfflineVertices'" | cat >>$fileOut
+	    echo "from HLTrigger.TallinnHLTPFTauAnalyzer.tools.addDeepTauDiscriminator import addDeepTauDiscriminator" | cat >>$fileOut 
+	    echo "hlt_srcPFTaus = 'hltSelected%ss%s' % (hlt_pfTauLabel, suffix)" | cat >>$fileOut
+	    echo "hlt_srcPFJets = 'hlt%sAK4PFJets%s' % (hlt_pfTauLabel, suffix)" | cat >>$fileOut
+	    echo "deepTauSequenceName = \"hltDeep%sSequence%s\" % (hlt_pfTauLabel, suffix)" | cat >>$fileOut
+	    echo "deepTauSequence = addDeepTauDiscriminator(process, hlt_srcPFTaus, hlt_srcPFJets, hlt_srcVertices," | cat >>$fileOut
+	    echo "	hlt_pfTauLabel, suffix, deepTauSequenceName)" | cat >>$fileOut
+	    echo "process.analysisSequence += deepTauSequence" | cat >>$fileOut
+
+	    echo "from HLTrigger.TallinnHLTPFTauAnalyzer.tools.addEvtWeightGenPtHat import addEvtWeightGenPtHat" | cat >>$fileOut
+	    echo "addEvtWeightGenPtHat(process, hlt_srcVertices)" | cat >>$fileOut
+	    echo "process.analysisSequence += process.stitchingWeight" | cat >>$fileOut
 
 	    echo "process.load(\"HLTTauAnalyzerPhase2.HLTTauAnalyzerPhase2.${algoType}Analyzer_cff\")" | cat >>$fileOut
 

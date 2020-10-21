@@ -3,11 +3,12 @@ import os, subprocess, sys
 
 # ----------- *** Start Modification *** -------------------------------------
 
-tagNTuple = ''
-tagRootTree = 'hps_OfflineVtx_20200806'
+tagNTuple = '20201009'
+tagRootTree = '20201009'
 
-pathCrab_Signal = '/cms/store/user/rdewanje/VBFHToTauTau_M125_14TeV_powheg_pythia8_correctedGridpack_tuneCP5/HLTConfig_VBFHToTauTau_M125_14TeV_powheg_pythia8_correctedGridpack_tuneCP5_wOfflineVtx_wDeepTau2/*/*'
-pathCrab_Background = '/cms/store/user/rdewanje/MinBias_TuneCP5_14TeV-pythia8/HLTConfig_MinBias_TuneCP5_14TeV-pythia8_wOfflineVtx_wDeepTau2/*/*'
+pathCrab_Signal = '/cms/store/user/sbhowmik/VBFHToTauTau_M125_14TeV_powheg_pythia8_correctedGridpack_tuneCP5/VBFHToTauTau_Phase2HLTTDRSummer20ReRECOMiniAOD_CMSSW_1113_'+tagNTuple+'/*/*'
+
+pathCrab_Background = '/cms/store/user/sbhowmik/MinBias_TuneCP5_14TeV-pythia8/MinBias_Phase2HLTTDRSummer20ReRECOMiniAOD_CMSSW_1113_'+tagNTuple+'/*/*'
 
 pathRootTree = '/home/sbhowmik/RootTree/HLTTau/Phase2/'
 
@@ -15,7 +16,8 @@ workingDir = os.getcwd()
 
 sampleType=["Signal", "Background"]
 #sampleType=["Signal"]
-algoType=["HLTTau"]
+#algoType=["HLTTau"]
+algoType=["L1andHLTTau"]
 #fileType=["rootTree", "bdt", "hist"] 
 fileType=["rootTree"]
 
