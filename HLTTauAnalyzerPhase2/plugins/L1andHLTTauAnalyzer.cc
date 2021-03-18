@@ -360,6 +360,8 @@ L1andHLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
        hltTauCharge_.push_back(hltTau->charge());
        double sumChargedIso = hltTau->tauID(hltTauSumChargedIsoToken_);
        hltTauIso_.push_back(sumChargedIso);
+       //std::cout<<" sumChargedIso = "<<sumChargedIso<<std::endl;
+       /*
        if(hltTau->pt()!=0){
 	 if(sumChargedIso > 0.60){
 	   hltTauVLooseRelIso_.push_back(true);
@@ -377,6 +379,30 @@ L1andHLTTauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	   hltTauMediumRelIso_.push_back(false);
 	 }
 	 if(sumChargedIso > 0.90){
+	   hltTauTightRelIso_.push_back(true);
+	 }else{
+	   hltTauTightRelIso_.push_back(false);
+	 }
+       }
+       */
+       //for ChargedIso
+       if(hltTau->pt()!=0){
+	 if(sumChargedIso/hltTau->pt() < 0.40){
+	   hltTauVLooseRelIso_.push_back(true);
+	 }else{
+	   hltTauVLooseRelIso_.push_back(false);
+	 }
+	 if(sumChargedIso/hltTau->pt() < 0.20){
+	   hltTauLooseRelIso_.push_back(true);
+	 }else{
+	   hltTauLooseRelIso_.push_back(false);
+	 }
+	 if(sumChargedIso/hltTau->pt() < 0.10){
+	   hltTauMediumRelIso_.push_back(true);
+	 }else{
+	   hltTauMediumRelIso_.push_back(false);
+	 }
+	 if(sumChargedIso/hltTau->pt() < 0.05){
 	   hltTauTightRelIso_.push_back(true);
 	 }else{
 	   hltTauTightRelIso_.push_back(false);

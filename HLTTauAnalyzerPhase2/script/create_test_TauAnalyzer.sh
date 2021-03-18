@@ -25,7 +25,7 @@ do
 	    ((count1+=1))
 	done < $fileList
 	echo $count1
-	nLineToAFile=250
+	nLineToAFile=1
 	nFileLine=$(($count1 / $nLineToAFile))
 	nFileLine=$(($nFileLine+1))
 	echo $nFileLine
@@ -109,12 +109,6 @@ do
 	    echo ")" | cat >>$fileOut
 	    
 	    echo "process.analysisSequence = cms.Sequence()" | cat >>$fileOut 
-	    echo "process.load(\"PhysicsTools.JetMCAlgos.TauGenJets_cfi\")" | cat >>$fileOut 
-	    echo "#process.tauGenJets.GenParticles = cms.InputTag('prunedGenParticles')" | cat >>$fileOut 
-	    echo "#process.analysisSequence += process.tauGenJets" | cat >>$fileOut 
-	    
-	    echo "process.load(\"PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi\")" | cat >>$fileOut 
-	    echo "#process.analysisSequence += process.tauGenJetsSelectorAllHadrons" | cat >>$fileOut 
 
 	    echo "hlt_pfTauLabel = 'HpsPFTau'" | cat >>$fileOut
 	    echo "hlt_srcVertices = 'offlinePrimaryVertices'" | cat >>$fileOut
@@ -129,9 +123,15 @@ do
 	    echo "	hlt_pfTauLabel, suffix, deepTauSequenceName)" | cat >>$fileOut
 	    echo "process.analysisSequence += deepTauSequence" | cat >>$fileOut
 
-	    echo "from HLTrigger.TallinnHLTPFTauAnalyzer.tools.addEvtWeightGenPtHat import addEvtWeightGenPtHat" | cat >>$fileOut
-	    echo "addEvtWeightGenPtHat(process, hlt_srcVertices)" | cat >>$fileOut
+	    echo "process.load(\"HLTrigger.mcStitching.stitchingWeight_cfi\")" | cat >>$fileOut
 	    echo "process.analysisSequence += process.stitchingWeight" | cat >>$fileOut
+
+            echo "process.load(\"PhysicsTools.JetMCAlgos.TauGenJets_cfi\")" | cat >>$fileOut
+            echo "process.tauGenJets.GenParticles = cms.InputTag('genParticles')" | cat >>$fileOut
+            echo "process.analysisSequence += process.tauGenJets" | cat >>$fileOut
+
+            echo "process.load(\"PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi\")" | cat >>$fileOut
+            echo "process.analysisSequence += process.tauGenJetsSelectorAllHadrons" | cat >>$fileOut
 
 	    echo "process.load(\"HLTTauAnalyzerPhase2.HLTTauAnalyzerPhase2.${algoType}Analyzer_cff\")" | cat >>$fileOut
 
@@ -151,7 +151,8 @@ do
 	    
 	    echo "process.TFileService=cms.Service('TFileService',fileName=cms.string(\"rootTree_test_${algoType}Analyzer_${sampleType}_${tagRootTree}_part_${i_fileLine}.root\"))" | cat >>$fileOut
 
-	    echo "cmsRun -p $fileOut > out_${algoType}_${sampleType}_part_${i_fileLine}.log &"  | cat >>$jobSubmitFile
+	    #echo "cmsRun -p $fileOut > out_${algoType}_${sampleType}_part_${i_fileLine}.log &"  | cat >>$jobSubmitFile
+	    echo "sbatch script/script_sbatch_job_submission.sh $fileOut"  | cat >>$jobSubmitFile
 	done
     done
 done
